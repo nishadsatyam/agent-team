@@ -346,6 +346,41 @@ function rel(d){ if(!d) return '—'; const ms=d.getTime()-Date.now(), a=Math.ab
 function clock(d){return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
 function dstr(d){return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}
 const Store={mem:{},get(k){try{const v=localStorage.getItem('replora_'+k);if(v!==null)return v;}catch(e){}return this.mem[k]||'';},set(k,v){this.mem[k]=v;try{localStorage.setItem('replora_'+k,v);}catch(e){}}};
+  // ===== n8n CONNECTION =====
+const N8N_API = "http://localhost:5678/webhook/replora/whatsapp";
+
+async function n8nRequest(data = {}) {
+  const response = await fetch(N8N_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    throw new Error("n8n Error: " + response.status);
+  }
+
+  return await response.json();
+}
+
+async function testN8N() {
+  try {
+    const result = await n8nRequest({
+      action: "test",
+      source: "replora_dashboard",
+      message: "Hello from Replora Dashboard"
+    });
+
+    console.log("n8n response:", result);
+    alert("✅ n8n Connected!");
+  } catch (error) {
+    console.error(error);
+    alert("❌ n8n Connection Failed: " + error.message);
+  }
+}
+
 const Charts={};
 function mk(id,cfg){ if(Charts[id])Charts[id].destroy(); Charts[id]=new Chart($(id),cfg); }
 const tick={color:'#95a29c',font:{size:10.5}};
